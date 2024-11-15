@@ -1,0 +1,86 @@
+---
+title: "Lab 2 - follow along exercises"
+output:
+  html_document:
+    highlight: tango
+    number_sections: yes
+    theme: readable
+    toc: yes
+    toc_float: yes
+---
+
+# Goals for today:
+
+1. Practice making ggplot figures 
+3. Creating Animations/Interactive Plots
+4. If time permits, explore some html features
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(DT)
+library(flextable)
+library(ggplot2)
+library(gganimate)
+library(gapminder)
+library(plotly)
+library(cowplot)
+library(transformr)
+```
+
+# Making Nice Tables
+
+
+## Task 1:  
+
+Take `diamonds` dataset, select columns `cut`, `carat'  `clarity`, `color`, `price`, and `depth`. Filter the data so that dataset only have diamonds with cut quality Fair and Good. Then, group dataset by `cut` and produce a summary the mean and standard deviation for depth and price. 
+
+```{r}
+head(diamonds)
+
+diamonds_modified <- diamonds %>%
+                      select(c(cut, carat, clarity, color, price, depth)) %>%
+                      filter(cut == "Fair" | cut == "Good") %>%
+                      group_by(cut) 
+
+diamonds_modified_summary <- diamonds_modified %>%
+                      summarise(mean_depth = mean(depth),
+                                mean_price = mean(price)) # first variable is name you want, and then what you want
+diamonds_modified # can also do head(diamonds_modified)
+```
+
+## ggplot examples - box plot 
+
+
+```{r}
+diamonds_modified %>%
+  ggplot(aes(x = clarity, y = price, group = clarity, fill = clarity)) +
+  geom_boxplot()
+```
+
+## ggplot scatter plot exmaple 
+
+```{r}
+diamonds_modified %>%
+  ggplot(aes(x = carat, y = price, colour = cut)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(formula = y ~ x, method = "lm", se = TRUE)
+  theme_classic() +
+  labs(title = "Scatter plot of Carat and Price", subtitle = "Diamonds Dataset")
+  
+diamonds_modified %>%
+  ggplot(aes(x = carat, y = price, colour = cut)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(formula = y ~ x, method = "loess", se = TRUE)
+  theme_classic() +
+  labs(title = "Scatter plot of Carat and Price", subtitle = "Diamonds Dataset")
+
+# use color not fill for scatterplot
+# geom_point() for scatterplot
+# points overlapping, so turn down alpha so you can see
+# what is in the aesthetic will be in legend
+# linear regression & SD lines: geom_smooth()
+  # lm = linear slope; can also use "loess" (locally estimated smoothing plot function?) which is a better representative
+  # se = TRUE means errorbars are there (the grey part at the lines)
+```
+
+
