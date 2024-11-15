@@ -4,6 +4,7 @@ library(ggplot2)
 library(dplyr)
 library(readr)
 
+# define UI
 ui <- dashboardPage(
   dashboardHeader(title = "Statistical Data Analysis Dashboard"),
   dashboardSidebar(
