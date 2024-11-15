@@ -1,27 +1,56 @@
 library(shiny)
+library(shinydashboard)
+library(ggplot2)
+library(dplyr)
+library(readr)
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(
-
-    # Application title
-    titlePanel("British Columbia Parks Biodiversity"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50, 
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
+ui <- dashboardPage(
+  dashboardHeader(title = "Statistical Data Analysis Dashboard"),
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("Upload Data", tabName = "upload", icon = icon("file-upload")),
+      menuItem("Data Summary", tabName = "summary", icon = icon("chart-bar")),
+      menuItem("Visualizations", tabName = "visualizations", icon = icon("chart-line"))
     )
+  ),
+  dashboardBody(
+    tabItems(
+      # Upload Data Tab
+      tabItem(tabName = "upload",
+              fluidRow(
+                box(width = 12,
+                    fileInput("file1", "Choose CSV File", accept = ".csv"),
+                    uiOutput("varselect")
+                )
+              )
+      ),
+      
+      # Data Summary Tab
+      tabItem(tabName = "summary",
+              fluidRow(
+                box(width = 12, 
+                    tableOutput("summary_table")
+                )
+              )
+      ),
+      
+      # Visualizations Tab
+      tabItem(tabName = "visualizations",
+              fluidRow(
+                box(width = 6,
+                    selectInput("var1", "Choose a variable for the plot", choices = NULL),
+                    plotOutput("histPlot")
+                ),
+                box(width = 6,
+                    selectInput("var2", "Choose another variable for correlation", choices = NULL),
+                    plotOutput("scatterPlot")
+                )
+              )
+      )
+    )
+  )
 )
+
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
