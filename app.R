@@ -5,7 +5,7 @@ library(dplyr)
 library(readr)
 library(DT)
 
-# define UI
+# Define UI
 ui <- dashboardPage(
   dashboardHeader(title = "Statistical Data Analysis Dashboard"),
   dashboardSidebar(
@@ -17,7 +17,7 @@ ui <- dashboardPage(
   ),
   dashboardBody(
     tabItems(
-      # Feature 1 - Upload Data Tab
+      # Feature 1 - upload data tab
       tabItem(tabName = "upload",
               fluidRow(
                 box(width = 12,
@@ -30,7 +30,7 @@ ui <- dashboardPage(
                 )
               )
       ),
-      # Feature 2 - Data Summary Tab
+      # Feature 2 - data summary tab
       tabItem(tabName = "summary",
               fluidRow(
                 box(width = 12,
@@ -40,7 +40,7 @@ ui <- dashboardPage(
               )
       ),
       
-      # Feature 3 - Visualizations Tab of Scatter Plot with Correlation Coeificient
+      # Feature 3 - visualizations tab of scatter plot with correlation coeificient
       tabItem(tabName = "visualizations",
               fluidRow(
                 box(width = 6,
@@ -66,7 +66,7 @@ server <- function(input, output, session) {
     read.csv(input$file1$datapath)
   })
   
-  # Feature 1 - Dynamic UI for selecting variables after file upload
+  # Feature 1 - dynamic UI for selecting variables after file upload
   output$varselect <- renderUI({
     req(dataset())
     df <- dataset()
@@ -78,7 +78,7 @@ server <- function(input, output, session) {
     head(dataset(), 10)
   })
   
-  # Feature 2 - Display summary statistics of the data
+  # Feature 2 - display summary statistics of the data
   output$summary_table <- renderTable({
     req(dataset())  # Ensure the dataset is available
     req(input$varSummary)  # Ensure a variable is selected
@@ -120,7 +120,8 @@ server <- function(input, output, session) {
     updateSelectInput(session, "varSummary", choices = colnames(dataset()))
   })
   
-  # Feature 3 - Create scatter plot for correlation between two variables
+  # Feature 3 - create histogram & scatter plot for correlation between two variables
+  # Create histogram for a single variable
   output$histPlot <- renderPlot({
     req(input$var1)  
     df <- dataset()
