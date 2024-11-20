@@ -6,15 +6,15 @@ Access a running instance of the Shiny app using the link above.
 This Shiny app, Statistical Data Analysis Dashboard, provides users with tools to interactively analyze their datasets. It includes the following features:
 
 #### 1. Upload Data: 
-    - Upload a CSV file and preview the first 10 rows of your dataset.
+- Upload a CSV file and preview the first 10 rows of your dataset.
 
 #### 2. Data Summary:
-    - Select a variable from the uploaded dataset to view key summary statistics, including the minimum, maximum, mean, and median.
-    - If the selected variable is non-numeric, the app will inform you.
+- Select a variable from the uploaded dataset to view key summary statistics, including the minimum, maximum, mean, and median.
+- If the selected variable is non-numeric, the app will inform you.
 
 #### 3. Visualizations:
-    - Generate a histogram for a chosen numeric variable to explore its distribution.
-    - Create scatter plots between two variables with a computed correlation coefficient, including a linear trend line for better interpretation.
+- Generate a histogram for a chosen numeric variable to explore its distribution.
+- Create scatter plots between two variables with a computed correlation coefficient, including a linear trend line for better interpretation.
 
 
 This app simplifies data exploration by providing user-friendly visualizations and statistics for uploaded datasets.
