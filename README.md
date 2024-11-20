@@ -1,5 +1,5 @@
 # Statistical Data Analysis Dashboard
-### Live Application Link
+### [Live Application Link](https://ajung02.shinyapps.io/assignment-b3/)
 Access a running instance of the Shiny app using the link above.
 
 ## Description
@@ -22,12 +22,15 @@ This app simplifies data exploration by providing user-friendly visualizations a
 ## Dataset Source
 This app requires users to upload their own dataset in **CSV** format. Users can interact with any dataset structured in tabular form with appropriate column headers.
 
-#### Example Dataset:
-For testing, users can use publicly available datasets such as the Gapminder dataset or their own project data.
-    - If you use Gapminder, please acknowledge it as follows: Gapminder data, licensed under Creative Commons Attribution 4.0 International (CC BY 4.0).
+To demonstrate its functionality, the app has been tested using the following dataset:
 
-## Getting Started
-To run this app locally, follow these steps:
+[Insert Dataset Name or Description]
 
-1. Clone the repository:
-2. Install dependencies: Make sure R and the required libraries (shiny, shinydashboard, ggplot2, dplyr, `
+Source: [Insert Dataset Source, e.g., Kaggle, UCI Machine Learning Repository, or other open data source]
+License: Ensure the data source allows public use.
+Users are encouraged to use their own datasets for customized analysis. For reproducibility, include a link to any publicly sourced dataset.
+
+## Instructions
+1. Visit the Shiny app at the provided link.
+2. Upload your dataset in CSV format.
+3. Explore summary statistics and visualizations for the uploaded data.
