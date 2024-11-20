@@ -13,7 +13,7 @@ This Shiny app, Statistical Data Analysis Dashboard, provides users with tools t
     - If the selected variable is non-numeric, the app will inform you.
 
 #### 3. Visualizations:
-    - Generate a histogram for a chosen variable to explore its distribution.
+    - Generate a histogram for a chosen numeric variable to explore its distribution.
     - Create scatter plots between two variables with a computed correlation coefficient, including a linear trend line for better interpretation.
 
 
