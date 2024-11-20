@@ -22,7 +22,8 @@ ui <- dashboardPage(
               fluidRow(
                 box(width = 12,
                     fileInput("file1", "Choose CSV File", accept = ".csv"),
-                    uiOutput("varselect")
+                    #varnames <- colnames(df)
+                    #uiOutput("varselect")
                 ),
                 box(width = 12, 
                     tableOutput("dataPreview") # New box to preview the uploaded data
@@ -69,8 +70,6 @@ server <- function(input, output, session) {
   output$varselect <- renderUI({
     req(dataset())
     df <- dataset()
-    varnames <- colnames(df)
-    selectInput("varselect3", "Choose a variable for the plot", choices = varnames)
   })
   
   # Display the first 10 rows of the dataset
