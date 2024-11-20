@@ -24,10 +24,10 @@ This app requires users to upload their own dataset in **CSV** format. Users can
 
 To demonstrate its functionality, the app has been tested using the following dataset:
 
-[Insert Dataset Name or Description]
+[Apartment Building Registration Data](https://open.toronto.ca/dataset/apartment-building-registration/)
 
-Source: [Insert Dataset Source, e.g., Kaggle, UCI Machine Learning Repository, or other open data source]
-License: Ensure the data source allows public use.
+Source: Acquired courtesy of The City of Toronto’s Open Data Portal.
+
 Users are encouraged to use their own datasets for customized analysis. For reproducibility, include a link to any publicly sourced dataset.
 
 ## Instructions
