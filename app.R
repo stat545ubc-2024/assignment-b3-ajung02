@@ -22,7 +22,7 @@ ui <- dashboardPage(
       tabItem(tabName = "upload",
               fluidRow(
                                 box(width = 12,
-                    fileInput("file1", "Choose CSV File", accept = ".csv"),
+                    fileInput("file1", "Choose CSV File (< 5 MB)", accept = ".csv"),
                     textOutput("fileWarning"), # Add this to display warnings
                     tableOutput("dataPreview")
                 ),
@@ -148,20 +148,45 @@ server <- function(input, output, session) {
   
   # Create histogram for a single variable
   output$histPlot <- renderPlot({
-    req(input$var1)
+    req(input$var1)  
     df <- dataset()
     
-    # Validate if the selected variable is numeric
-    if (!is.numeric(df[[input$var1]])) {
-      validate(need(FALSE, paste("The selected variable", input$var1, "is not numeric. Please select a numeric variable.")))
-    }
+    # Check if the selected variable is numeric or categorical
+    selected_var <- df[[input$var1]]
     
-    ggplot(df, aes_string(x = input$var1)) + 
-      geom_histogram(binwidth = 1, fill = "blue", color = "white") +
-      theme_minimal() + 
-      labs(title = paste("Histogram of", input$var1))
+    if (is.numeric(selected_var)) {
+      # Dynamically calculate binwidth for better representation
+      range_var <- max(selected_var, na.rm = TRUE) - min(selected_var, na.rm = TRUE)
+      bins <- 15  
+      binwidth <- range_var / bins
+      
+      ggplot(df, aes_string(x = input$var1)) + 
+        geom_histogram(binwidth = binwidth, fill = "blue", color = "white") +
+        theme_minimal() + 
+        labs(title = paste("Histogram of", input$var1), x = input$var1, y = "Frequency")
+    } else {
+      # Treat non-numeric variables as categorical
+      unique_levels <- n_distinct(selected_var)
+      top_n <- min(10, unique_levels)  # Adjust the number of top levels to show
+      top_levels <- df %>%
+        count(!!sym(input$var1), sort = TRUE) %>%
+        slice_head(n = top_n) %>%
+        pull(!!sym(input$var1))
+      
+      filtered_df <- df %>% filter(!!sym(input$var1) %in% top_levels)
+      
+      ggplot(filtered_df, aes_string(x = input$var1)) +
+        geom_bar(fill = "blue", color = "white") +
+        theme_minimal() +
+        labs(
+          title = paste("Bar Plot of", ifelse(unique_levels > top_n, paste("Top", top_n, "Levels of"), input$var1)),
+          x = input$var1,
+          y = "Count"
+        ) +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
+    }
   })
-
+  # Create Scatter Plot to show the correlation of two variables
   output$scatterPlot <- renderPlot({
     req(input$var1, input$var2)
     df <- dataset()
@@ -185,6 +210,83 @@ server <- function(input, output, session) {
         x = input$var1,
         y = input$var2
       )
+  })
+  
+  # Feature 4 - generating Filter UI
+  output$filterUI <- renderUI({
+    req(dataset())  # Ensure dataset is available
+    df <- dataset()
+    
+    # Generate filter UI for each column
+    lapply(names(df), function(col) {
+      if (is.numeric(df[[col]])) {
+        # Numeric range input for numeric columns
+        sliderInput(
+          inputId = paste0("filter_", col),
+          label = paste("Filter", col),
+          min = min(df[[col]], na.rm = TRUE),
+          max = max(df[[col]], na.rm = TRUE),
+          value = c(min(df[[col]], na.rm = TRUE), max(df[[col]], na.rm = TRUE))
+        )
+      } else if (is.character(df[[col]]) || is.factor(df[[col]])) {
+        # Dropdown menu for categorical columns
+        selectInput(
+          inputId = paste0("filter_", col),
+          label = paste("Filter", col),
+          choices = unique(df[[col]]),
+          selected = unique(df[[col]]),
+          multiple = TRUE
+        )
+      }
+    })
+  })
+  
+  # Applying filters to dataset
+  filteredData <- reactive({
+    req(dataset())  # Ensure dataset is available
+    df <- dataset()  # Load the dataset
+    
+    # Loop through each column in the dataset
+    for (col in names(df)) {
+      input_id <- paste0("filter_", col)  # Dynamically generate input IDs
+      
+      # Check if the input value exists for the column
+      if (!is.null(input[[input_id]])) {
+        if (is.numeric(df[[col]])) {
+          # Numeric filtering
+          range <- input[[input_id]]
+          df <- df[df[[col]] >= range[1] & df[[col]] <= range[2], ]
+        } else if (is.character(df[[col]]) || is.factor(df[[col]])) {
+          # Categorical filtering
+          selected <- input[[input_id]]
+          df <- df[df[[col]] %in% selected, ]  # Ensure only selected values are kept
+        }
+      }
+    }
+    
+    df  # Return the filtered dataset
+  })
+  
+  # Rendering filtered data
+  filteredData <- reactive({
+    req(dataset())  # Ensure dataset is available
+    df <- dataset()
+    
+    for (col in names(df)) {
+      input_id <- paste0("filter_", col)
+      if (!is.null(input[[input_id]])) {
+        if (is.numeric(df[[col]])) {
+          # Numeric filtering
+          range <- input[[input_id]]
+          df <- df[df[[col]] >= range[1] & df[[col]] <= range[2], ]
+        } else if (is.character(df[[col]]) || is.factor(df[[col]])) {
+          # Categorical filtering
+          selected <- input[[input_id]]
+          df <- df[df[[col]] %in% selected, ]
+        }
+      }
+    }
+    df
   })
   
   # Update the dropdown choices whenever the dataset changes
