@@ -1,5 +1,6 @@
 # Statistical Data Analysis Dashboard
-### [Live Application Link](https://ajung02.shinyapps.io/assignment-b3/)
+### [Live Application Link Version 1.0.0](https://ajung02.shinyapps.io/assignment-b3/)
+### [Live Application Link Version 1.1.0](https://ajung02.shinyapps.io/assignment-b4/)
 Access a running instance of the Shiny app using the link above.
 
 ## Description
