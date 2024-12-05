@@ -12,7 +12,8 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("Upload Data", tabName = "upload", icon = icon("file-upload")),
       menuItem("Data Summary", tabName = "summary", icon = icon("chart-bar")),
-      menuItem("Visualizations", tabName = "visualizations", icon = icon("chart-line"))
+      menuItem("Visualizations", tabName = "visualizations", icon = icon("chart-line")),
+      menuItem("Help", tabName = "help", icon = icon("info-circle"))
     )
   ),
   dashboardBody(
@@ -20,21 +21,27 @@ ui <- dashboardPage(
       # Feature 1 - upload data tab
       tabItem(tabName = "upload",
               fluidRow(
-                box(width = 12,
+                                box(width = 12,
                     fileInput("file1", "Choose CSV File", accept = ".csv"),
-                    #varnames <- colnames(df)
-                    #uiOutput("varselect")
+                    textOutput("fileWarning"), # Add this to display warnings
+                    tableOutput("dataPreview")
                 ),
                 box(width = 12, 
-                    tableOutput("dataPreview") # New box to preview the uploaded data
+                    h4("Filter Options"),
+                    uiOutput("filterUI"), # Dynamic filter UI based on dataset
+                    dataTableOutput("filteredData") # Show filtered data interactively
+                ),
+                box(width = 12,
+                    downloadButton("downloadData", "Download Filtered Data")  # Button to download data
                 )
               )
+
       ),
       # Feature 2 - data summary tab
       tabItem(tabName = "summary",
               fluidRow(
                 box(width = 12,
-                    selectInput("varSummary", "Select a variable for summary", choices = NULL),  # Dropdown menu
+                    selectInput("varSummary", "Select a NUMERIC variable for summary", choices = NULL),  # Dropdown menu
                     tableOutput("summary_table")  # Table to display summary stats
                 )
               )
@@ -52,6 +59,15 @@ ui <- dashboardPage(
                     plotOutput("scatterPlot")
                 )
               )
+      ),
+      
+      # Feature 4 - add a "Help" tab to provide usage instructions
+      tabItem(tabName = "help",
+              h3("How to Use This App"),
+              p("1. Upload a CSV file in the 'Upload Data' tab."),
+              p("2. Use the filter options to explore subsets of your data."),
+              p("3. View data summaries and visualizations in the respective tabs."),
+              p("4. Download filtered data for further analysis.")
       )
     )
   )
@@ -63,6 +79,14 @@ server <- function(input, output, session) {
   # Reactive object to read the dataset
   dataset <- reactive({
     req(input$file1)
+    
+    # Check file size and warn the user
+    max_size <- 5 * 1024^2  # 5 MB in bytes
+    if (input$file1$size > max_size) {
+      validate(need(FALSE, "The uploaded file exceeds the 5 MB size limit. Please upload a smaller file."))
+    }
+    
+    # Load the dataset
     read.csv(input$file1$datapath)
   })
   
@@ -121,19 +145,31 @@ server <- function(input, output, session) {
   })
   
   # Feature 3 - create histogram & scatter plot for correlation between two variables
+  
   # Create histogram for a single variable
   output$histPlot <- renderPlot({
-    req(input$var1)  
+    req(input$var1)
     df <- dataset()
+    
+    # Validate if the selected variable is numeric
+    if (!is.numeric(df[[input$var1]])) {
+      validate(need(FALSE, paste("The selected variable", input$var1, "is not numeric. Please select a numeric variable.")))
+    }
+    
     ggplot(df, aes_string(x = input$var1)) + 
       geom_histogram(binwidth = 1, fill = "blue", color = "white") +
       theme_minimal() + 
       labs(title = paste("Histogram of", input$var1))
   })
-  
+
   output$scatterPlot <- renderPlot({
-    req(input$var1, input$var2) # Ensure both variables are selected
+    req(input$var1, input$var2)
     df <- dataset()
+    
+    # Validate if the selected variables are numeric
+    if (!is.numeric(df[[input$var1]]) || !is.numeric(df[[input$var2]])) {
+      validate(need(FALSE, "Both selected variables must be numeric. Please choose numeric variables."))
+    }
     
     # Calculate correlation coefficient
     corr <- round(cor(df[[input$var1]], df[[input$var2]], use = "complete.obs"), 2)
@@ -157,6 +193,13 @@ server <- function(input, output, session) {
     updateSelectInput(session, "var1", choices = colnames(dataset()))
     updateSelectInput(session, "var2", choices = colnames(dataset()))
   })
+  # add downloading button under "upload data" tab
+  output$downloadData <- downloadHandler(
+    filename = function() { paste("filtered_data", Sys.Date(), ".csv", sep = "") },
+    content = function(file) {
+      write.csv(filteredData(), file, row.names = FALSE)
+    }
+  )
 }
 
 # Run the application 
